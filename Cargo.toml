@@ -2,5 +2,9 @@
 name = "zendns"
 version = "0.1.0"
 edition = "2021"
+description = "Manage Dynamic DNS with serenity"
+homepage = "https://github.com/dotzenith/ZenDNS"
+repository = "https://github.com/dotzenith/ZenDNS"
+license = "MIT"
 
 [dependencies]
