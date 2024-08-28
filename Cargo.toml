@@ -8,3 +8,7 @@ repository = "https://github.com/dotzenith/ZenDNS"
 license = "MIT"
 
 [dependencies]
+anyhow = "1.0.86"
+reqwest = { version = "0.12.7", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+serde = { version = "1.0.209", features = ["derive"] }
+serde_json = "1.0.127"
