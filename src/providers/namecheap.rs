@@ -1,26 +1,25 @@
 use crate::common::get_ip;
+use crate::config_manager::NamecheapConfig;
 use anyhow::{anyhow, Context, Result};
 use regex::Regex;
 use reqwest::blocking::Client;
 
 #[derive(Debug)]
-pub struct NamecheapManager {
-    client: Client,
+pub struct NamecheapManager<'a> {
+    client: &'a Client,
 }
 
-impl NamecheapManager {
-    pub fn new() -> Result<Self> {
-        let client = Client::new();
-
+impl<'a> NamecheapManager<'a> {
+    pub fn new(client: &'a Client) -> Result<Self> {
         Ok(NamecheapManager { client })
     }
-    pub fn update_dns_record(&self, password: String, host: String, domain: String) -> Result<()> {
+    pub fn update_dns_record(&self, config: &NamecheapConfig) -> Result<()> {
         let ip: String = get_ip()?;
         let response = self
             .client
             .get(format!(
                 "https://dynamicdns.park-your-domain.com/update?host={}&domain={}&password={}&ip={}",
-                host, domain, password, ip
+                &config.host, &config.domain, &config.password, ip
             ))
             .send()
             .context("Could not get DNS records")?;

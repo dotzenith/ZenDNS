@@ -1,17 +1,16 @@
 use crate::common::get_ip;
+use crate::config_manager::CloudflareConfig;
 use anyhow::{anyhow, Context, Result};
 use reqwest::blocking::Client;
 use serde_json::{json, Value};
 
 #[derive(Debug)]
-pub struct CloudflareManager {
-    client: Client,
+pub struct CloudflareManager<'a> {
+    client: &'a Client,
 }
 
-impl CloudflareManager {
-    pub fn new() -> Result<Self> {
-        let client = Client::new();
-
+impl<'a> CloudflareManager<'a> {
+    pub fn new(client: &'a Client) -> Result<Self> {
         Ok(CloudflareManager { client })
     }
     fn extract_record_id(&self, json: &Value) -> Result<bool> {
@@ -73,17 +72,10 @@ impl CloudflareManager {
         }
         Err(anyhow!("Could not find record id"))
     }
-    pub fn update_dns_record(
-        &self,
-        api_key: String,
-        zone_name: String,
-        hostname: String,
-        ttl: u32,
-        proxied: bool,
-    ) -> Result<()> {
-        let zone_id = self.get_zone_id(&api_key, &zone_name)?;
+    pub fn update_dns_record(&self, config: &CloudflareConfig) -> Result<()> {
+        let zone_id = self.get_zone_id(&config.api_key, &config.zone_name)?;
         let (record_id, current_ip) =
-            self.get_dns_record_id_and_ip(&zone_id, &hostname, &api_key)?;
+            self.get_dns_record_id_and_ip(&zone_id, &config.hostname, &config.api_key)?;
         let ip = get_ip()?;
 
         if current_ip == ip {
@@ -98,13 +90,13 @@ impl CloudflareManager {
             .client
             .patch(&url)
             .header("Content-Type", "application/json")
-            .header("Authorization", format!("Bearer {}", api_key))
+            .header("Authorization", format!("Bearer {}", &config.api_key))
             .json(&json!({
                 "content": ip,
-                "name": hostname,
-                "proxied": proxied,
+                "name": &config.hostname,
+                "proxied": config.proxied,
                 "type": "A",
-                "ttl": ttl
+                "ttl": config.ttl
             }))
             .send()?;
         Ok(())
