@@ -10,10 +10,10 @@ pub struct NamecheapManager<'a> {
 }
 
 impl<'a> NamecheapManager<'a> {
-    pub fn new(client: &'a Client) -> Result<Self> {
-        Ok(NamecheapManager { client })
+    pub fn new(client: &'a Client) -> Self {
+        NamecheapManager { client }
     }
-    pub fn update_dns_record(&self, config: &NamecheapConfig) -> Result<()> {
+    pub fn update_dns_record(&self, config: &NamecheapConfig) -> Result<String> {
         let ip: String = get_ip()?;
         let response = self
             .client
@@ -33,7 +33,7 @@ impl<'a> NamecheapManager<'a> {
             .context("Did not find any IP Addresses in response")?;
 
         if &captures[1] == ip {
-            Ok(())
+            Ok(format!("Success! {} has been set to {}", &config.host, ip))
         } else {
             Err(anyhow!("IP Address returned by the XML does not match"))
         }

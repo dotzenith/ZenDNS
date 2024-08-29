@@ -9,10 +9,10 @@ pub struct DuckdnsManager<'a> {
 }
 
 impl<'a> DuckdnsManager<'a> {
-    pub fn new(client: &'a Client) -> Result<Self> {
-        Ok(DuckdnsManager { client })
+    pub fn new(client: &'a Client) -> Self {
+        DuckdnsManager { client }
     }
-    pub fn update_dns_record(&self, config: &DuckDNSConfig) -> Result<()> {
+    pub fn update_dns_record(&self, config: &DuckDNSConfig) -> Result<String> {
         let ip: String = get_ip()?;
         let response = self
             .client
@@ -28,7 +28,7 @@ impl<'a> DuckdnsManager<'a> {
             .context("Could not convert response to text")?;
 
         if text == "OK" {
-            Ok(())
+            Ok(format!("Success! {} has been set to {}", &config.domain, ip))
         } else {
             Err(anyhow!("Update Failed"))
         }

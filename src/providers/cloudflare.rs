@@ -10,10 +10,10 @@ pub struct CloudflareManager<'a> {
 }
 
 impl<'a> CloudflareManager<'a> {
-    pub fn new(client: &'a Client) -> Result<Self> {
-        Ok(CloudflareManager { client })
+    pub fn new(client: &'a Client) -> Self {
+        CloudflareManager { client }
     }
-    fn extract_record_id(&self, json: &Value) -> Result<bool> {
+    fn response_successful(&self, json: &Value) -> Result<bool> {
         Ok(json["success"].as_bool().ok_or(anyhow!("No Success"))? == true)
     }
 
@@ -29,7 +29,7 @@ impl<'a> CloudflareManager<'a> {
         let json: Value = response
             .json()
             .context("Could not parse response for zones")?;
-        let success = self.extract_record_id(&json)?;
+        let success = self.response_successful(&json)?;
 
         if success {
             // Unwraps here are safe since the request status was success
@@ -61,7 +61,7 @@ impl<'a> CloudflareManager<'a> {
         let json: Value = response
             .json()
             .context("Could not parse response for zones")?;
-        let success = self.extract_record_id(&json)?;
+        let success = self.response_successful(&json)?;
 
         if success {
             // Unwraps here are safe since the request status was success
@@ -72,14 +72,17 @@ impl<'a> CloudflareManager<'a> {
         }
         Err(anyhow!("Could not find record id"))
     }
-    pub fn update_dns_record(&self, config: &CloudflareConfig) -> Result<()> {
+    pub fn update_dns_record(&self, config: &CloudflareConfig) -> Result<String> {
         let zone_id = self.get_zone_id(&config.api_key, &config.zone_name)?;
         let (record_id, current_ip) =
             self.get_dns_record_id_and_ip(&zone_id, &config.hostname, &config.api_key)?;
         let ip = get_ip()?;
 
         if current_ip == ip {
-            return Ok(());
+            return Ok(format!(
+                "IP Address hasn't changed, no updates made to {}",
+                &config.hostname
+            ));
         }
 
         let url = format!(
@@ -99,6 +102,18 @@ impl<'a> CloudflareManager<'a> {
                 "ttl": config.ttl
             }))
             .send()?;
-        Ok(())
+
+        let json: Value = response
+            .json()
+            .context("Could not parse response for zones")?;
+        let success = self.response_successful(&json)?;
+
+        if success {
+            return Ok(format!(
+                "Success! {} has been set to {}",
+                &config.hostname, ip
+            ))
+        }
+        Err(anyhow!("Update failed: {}", json.to_string()))
     }
 }
