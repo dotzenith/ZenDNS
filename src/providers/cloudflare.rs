@@ -73,9 +73,9 @@ impl<'a> CloudflareManager<'a> {
         Err(anyhow!("Could not find record id"))
     }
     pub fn update_dns_record(&self, config: &CloudflareConfig) -> Result<String> {
-        let zone_id = self.get_zone_id(&config.api_key, &config.zone_name)?;
+        let zone_id = self.get_zone_id(&config.key, &config.zone)?;
         let (record_id, current_ip) =
-            self.get_dns_record_id_and_ip(&zone_id, &config.hostname, &config.api_key)?;
+            self.get_dns_record_id_and_ip(&zone_id, &config.hostname, &config.key)?;
         let ip = get_ip()?;
 
         if current_ip == ip {
@@ -93,7 +93,7 @@ impl<'a> CloudflareManager<'a> {
             .client
             .patch(&url)
             .header("Content-Type", "application/json")
-            .header("Authorization", format!("Bearer {}", &config.api_key))
+            .header("Authorization", format!("Bearer {}", &config.key))
             .json(&json!({
                 "content": ip,
                 "name": &config.hostname,
@@ -110,8 +110,8 @@ impl<'a> CloudflareManager<'a> {
 
         if success {
             return Ok(format!(
-                "Success! {} has been set to {}",
-                &config.hostname, ip
+                "Success! Hostname: {} for Zone: {} has been set to {}",
+                &config.hostname, &config.zone, ip
             ))
         }
         Err(anyhow!("Update failed: {}", json.to_string()))

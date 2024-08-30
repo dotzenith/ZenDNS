@@ -33,7 +33,7 @@ impl<'a> NamecheapManager<'a> {
             .context("Did not find any IP Addresses in response")?;
 
         if &captures[1] == ip {
-            Ok(format!("Success! {} has been set to {}", &config.host, ip))
+            Ok(format!("Success! Host: {} for Domain: {} has been set to {}", &config.host, &config.domain, ip))
         } else {
             Err(anyhow!("IP Address returned by the XML does not match"))
         }

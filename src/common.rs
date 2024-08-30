@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use reqwest::blocking::get;
-use simplelog::{TermLogger, WriteLogger, LevelFilter, Config, TerminalMode, ColorChoice};
-use std::fs::File;
+use simplelog::{ColorChoice, Config, LevelFilter, TermLogger, TerminalMode, WriteLogger};
+use std::fs::OpenOptions;
 use std::process;
 
 pub fn get_ip() -> Result<String> {
@@ -13,10 +13,11 @@ pub fn get_ip() -> Result<String> {
         .to_owned())
 }
 
-pub fn init_logger(file: Option<&str>) {
+pub fn init_logger(file: Option<&String>) {
     match file {
         Some(file_path) => {
-            let file = File::create(file_path);
+            let file = OpenOptions::new().create(true).append(true).open(file_path);
+
             if file.is_err() {
                 eprintln!("Unable to create log file");
                 process::exit(1);

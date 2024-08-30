@@ -3,8 +3,8 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct CloudflareConfig {
-    pub api_key: String,
-    pub zone_name: String,
+    pub key: String,
+    pub zone: String,
     pub hostname: String,
     pub ttl: u32,
     pub proxied: bool,
@@ -30,9 +30,9 @@ pub struct Settings {
     pub duckdns: Option<Vec<DuckDNSConfig>>,
 }
 
-pub fn config() -> Result<Settings, ConfigError> {
+pub fn config(path: &str) -> Result<Settings, ConfigError> {
     let settings = Config::builder()
-        .add_source(File::new("example.yaml", FileFormat::Yaml))
+        .add_source(File::new(path, FileFormat::Yaml))
         .build()?;
 
     let settings: Settings = settings.try_deserialize()?;
