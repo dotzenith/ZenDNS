@@ -1,4 +1,3 @@
-use crate::common::get_ip;
 use crate::config_manager::DuckDNSConfig;
 use anyhow::{anyhow, Context, Result};
 use reqwest::blocking::Client;
@@ -12,8 +11,7 @@ impl<'a> DuckdnsManager<'a> {
     pub fn new(client: &'a Client) -> Self {
         DuckdnsManager { client }
     }
-    pub fn update_dns_record(&self, config: &DuckDNSConfig) -> Result<String> {
-        let ip: String = get_ip()?;
+    pub fn update(&self, config: &DuckDNSConfig, ip: &str) -> Result<String> {
         let response = self
             .client
             .get(format!(

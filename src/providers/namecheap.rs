@@ -1,4 +1,3 @@
-use crate::common::get_ip;
 use crate::config_manager::NamecheapConfig;
 use anyhow::{anyhow, Context, Result};
 use regex::Regex;
@@ -13,8 +12,7 @@ impl<'a> NamecheapManager<'a> {
     pub fn new(client: &'a Client) -> Self {
         NamecheapManager { client }
     }
-    pub fn update_dns_record(&self, config: &NamecheapConfig) -> Result<String> {
-        let ip: String = get_ip()?;
+    pub fn update(&self, config: &NamecheapConfig, ip: &str) -> Result<String> {
         let response = self
             .client
             .get(format!(
@@ -27,7 +25,7 @@ impl<'a> NamecheapManager<'a> {
         let re = Regex::new(r"<IP>(\d+\.\d+\.\d+\.\d+)</IP>")?;
         let text = response
             .text()
-            .context("Could not conver response to text")?;
+            .context("Could not convert response to text")?;
         let captures = re
             .captures(&text)
             .context("Did not find any IP Addresses in response")?;

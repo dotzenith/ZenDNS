@@ -1,4 +1,3 @@
-use crate::common::get_ip;
 use crate::config_manager::CloudflareConfig;
 use anyhow::{anyhow, Context, Result};
 use reqwest::blocking::Client;
@@ -72,11 +71,10 @@ impl<'a> CloudflareManager<'a> {
         }
         Err(anyhow!("Could not find record id"))
     }
-    pub fn update_dns_record(&self, config: &CloudflareConfig) -> Result<String> {
+    pub fn update(&self, config: &CloudflareConfig, ip: &str) -> Result<String> {
         let zone_id = self.get_zone_id(&config.key, &config.zone)?;
         let (record_id, current_ip) =
             self.get_dns_record_id_and_ip(&zone_id, &config.hostname, &config.key)?;
-        let ip = get_ip()?;
 
         if current_ip == ip {
             return Ok(format!(
