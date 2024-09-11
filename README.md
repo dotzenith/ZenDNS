@@ -71,6 +71,7 @@ Usage: zendns [OPTIONS] --config <CONFIG>
 Options:
   -c, --config <CONFIG>  The yaml config file to use
   -l, --log <LOGFILE>    Where the output will be logged, uses stdout if not used
+  -f, --force            Overrides the check for caching
   -h, --help             Print help
   -V, --version          Print version
 ```
@@ -155,7 +156,7 @@ duckdns:
 ---
 
 ## ❖ What's New?
-0.1.2 - Fetch IP only once
+0.2.0 - Add caching for IP
 
 ---
 
