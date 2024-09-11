@@ -3,9 +3,9 @@ mod config_manager;
 mod providers;
 
 use crate::providers::{CloudflareManager, DuckdnsManager, NamecheapManager};
-use clap::{arg, command};
-use common::{init_logger, get_ip};
-use log::{error, info};
+use clap::{arg, command, ArgAction};
+use common::{get_ip, init_logger, read_ip, save_ip};
+use log::{error, info, warn};
 use reqwest::blocking::Client;
 
 fn main() {
@@ -21,12 +21,15 @@ fn main() {
                 .required(false)
                 .help("Where the output will be logged, uses stdout if not used"),
         )
+        .arg(
+            arg!(-f --force ... "Overrides the check for caching")
+                .required(false)
+                .action(ArgAction::SetTrue),
+        )
         .get_matches();
 
-    // Required so unwrap is swell
-    let config: &String = matches.get_one("config").unwrap();
-    let log: Option<&String> = matches.get_one("log");
 
+    let config: &String = matches.get_one("config").unwrap();
     let settings = match config_manager::config(config) {
         Ok(set) => set,
         Err(err) => {
@@ -34,7 +37,8 @@ fn main() {
             std::process::exit(1);
         }
     };
-    let client = Client::new();
+
+    let log: Option<&String> = matches.get_one("log");
     init_logger(log); // Will exit if it doesn't succeed
 
     let ip = match get_ip() {
@@ -45,6 +49,28 @@ fn main() {
         }
     };
 
+    if !matches.get_flag("force") {
+        match read_ip() {
+            Ok(saved_ip) => {
+                if saved_ip == ip {
+                    info!("IP is the same as last usage, no updates will be made");
+                    std::process::exit(0);
+                }
+            }
+            Err(err) => {
+                warn!("{}: records will still be updated", err);
+            }
+        }
+    }
+
+    match save_ip(&ip) {
+        Ok(_) => (),
+        Err(err) => {
+            warn!("{}: records will still be updated", err);
+        }
+    }
+
+    let client = Client::new();
     if let Some(cloudflare) = settings.cloudflare {
         for config in cloudflare.iter() {
             match CloudflareManager::new(&client).update(config, &ip) {
