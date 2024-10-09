@@ -1,20 +1,10 @@
 use anyhow::{Context, Result};
 use bincode::{deserialize_from, serialize_into};
 use platform_dirs::AppDirs;
-use reqwest::blocking::get;
 use simplelog::{ColorChoice, Config, LevelFilter, TermLogger, TerminalMode, WriteLogger};
 use std::fs::{create_dir, OpenOptions};
 use std::io::{BufReader, BufWriter};
 use std::process;
-
-pub fn get_ip() -> Result<String> {
-    Ok(get("https://icanhazip.com/")
-        .context("Couldn't hit icanhazip")?
-        .text()
-        .context("Couldn't convert icanhazip output")?
-        .trim()
-        .to_owned())
-}
 
 pub fn init_logger(file: Option<&String>) {
     match file {

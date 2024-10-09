@@ -1,12 +1,14 @@
-mod common;
 mod config_manager;
+mod ip;
 mod providers;
+mod utils;
 
 use crate::providers::{CloudflareManager, DuckdnsManager, NamecheapManager};
 use clap::{arg, command, ArgAction};
-use common::{get_ip, init_logger, read_ip, save_ip};
+use ip::get_ip;
 use log::{error, info, warn};
 use reqwest::blocking::Client;
+use utils::{init_logger, read_ip, save_ip};
 
 fn main() {
     let matches = command!()
@@ -27,7 +29,6 @@ fn main() {
                 .action(ArgAction::SetTrue),
         )
         .get_matches();
-
 
     let config: &String = matches.get_one("config").unwrap();
     let settings = match config_manager::config(config) {
