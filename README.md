@@ -156,7 +156,7 @@ duckdns:
 ---
 
 ## ❖ What's New?
-0.2.0 - Add caching for IP
+0.3.0 - Add fallbacks for fetching public IP
 
 ---
 
