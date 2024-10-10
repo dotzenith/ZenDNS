@@ -1,12 +1,15 @@
 use anyhow::{Context, Result};
 use bincode::{deserialize_from, serialize_into};
 use platform_dirs::AppDirs;
-use simplelog::{ColorChoice, Config, LevelFilter, TermLogger, TerminalMode, WriteLogger};
+use simplelog::{
+    ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode, WriteLogger,
+};
 use std::fs::{create_dir, OpenOptions};
 use std::io::{BufReader, BufWriter};
 use std::process;
 
 pub fn init_logger(file: Option<&String>) {
+    let config = ConfigBuilder::new().set_time_offset_to_local().unwrap().build();
     match file {
         Some(file_path) => {
             let file = OpenOptions::new().create(true).append(true).open(file_path);
@@ -15,7 +18,11 @@ pub fn init_logger(file: Option<&String>) {
                 eprintln!("Unable to create log file");
                 process::exit(1);
             }
-            let logger = WriteLogger::init(LevelFilter::Info, Config::default(), file.unwrap());
+            let logger = WriteLogger::init(
+                LevelFilter::Info,
+                config,
+                file.unwrap(),
+            );
             if logger.is_err() {
                 eprintln!("Unable to create log file");
                 process::exit(1);
@@ -25,7 +32,7 @@ pub fn init_logger(file: Option<&String>) {
         None => {
             let logger = TermLogger::init(
                 LevelFilter::Info,
-                Config::default(),
+                config,
                 TerminalMode::Stdout,
                 ColorChoice::Never,
             );
@@ -49,7 +56,8 @@ pub fn save_ip(ip: &str) -> Result<()> {
             .write(true)
             .create(true)
             .truncate(true)
-            .open(app_dirs.cache_dir.join("ip")).context("Unable to create cache file")?,
+            .open(app_dirs.cache_dir.join("ip"))
+            .context("Unable to create cache file")?,
     );
 
     serialize_into(&mut file, ip).context("Unable to save IP to file")?;
@@ -61,7 +69,8 @@ pub fn read_ip() -> Result<String> {
     let mut file = BufReader::new(
         OpenOptions::new()
             .read(true)
-            .open(app_dirs.cache_dir.join("ip")).context("IP cache does not exist")?,
+            .open(app_dirs.cache_dir.join("ip"))
+            .context("IP cache does not exist")?,
     );
 
     let stations: String = deserialize_from(&mut file).context("Unable to read IP from file")?;
