@@ -13,7 +13,7 @@ impl<'a> CloudflareManager<'a> {
         CloudflareManager { client }
     }
     fn response_successful(&self, json: &Value) -> Result<bool> {
-        Ok(json["success"].as_bool().ok_or(anyhow!("No Success"))? == true)
+        json["success"].as_bool().ok_or(anyhow!("No Success"))
     }
 
     pub fn get_zone_id(&self, api_key: &str, zone_name: &str) -> Result<String> {
@@ -89,7 +89,7 @@ impl<'a> CloudflareManager<'a> {
         );
         let response = self
             .client
-            .patch(&url)
+            .patch(url)
             .header("Content-Type", "application/json")
             .header("Authorization", format!("Bearer {}", &config.key))
             .json(&json!({
