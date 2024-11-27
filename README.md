@@ -39,7 +39,7 @@ brew install dotzenith/tap/zendns
 
 #### Powershell
 ```sh
-irm https://github.com/dotzenith/zendns/releases/latest/download/zendns-installer.ps1 | iex
+powershell -ExecutionPolicy ByPass -c "irm https://github.com/dotzenith/zendns/releases/latest/download/zendns-installer.ps1 | iex"
 ```
 
 #### Cargo
