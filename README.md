@@ -156,7 +156,7 @@ duckdns:
 ---
 
 ## ❖ What's New?
-0.3.1 - Redo TTL validation and fix logger timestamp
+0.3.2 - Update rust-toolchain
 
 ---
 
