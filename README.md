@@ -156,7 +156,7 @@ duckdns:
 ---
 
 ## ❖ What's New?
-0.3.3 - Update Rust edition
+0.3.4 - Update dist and rust version
 
 ---
 
