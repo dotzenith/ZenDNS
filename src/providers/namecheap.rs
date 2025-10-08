@@ -1,4 +1,4 @@
-use crate::config_manager::NamecheapConfig;
+use crate::schema::NamecheapConfig;
 use anyhow::{anyhow, Context, Result};
 use regex::Regex;
 use reqwest::blocking::Client;

@@ -1,4 +1,4 @@
-use crate::config_manager::DuckDNSConfig;
+use crate::schema::DuckDNSConfig;
 use anyhow::{anyhow, Context, Result};
 use reqwest::blocking::Client;
 
