@@ -1,9 +1,10 @@
-mod config_manager;
 mod ip;
 mod providers;
 mod utils;
+mod schema;
 
 use crate::providers::{CloudflareManager, DuckdnsManager, NamecheapManager};
+use schema::{Config, Provider};
 use clap::{arg, command, ArgAction};
 use ip::get_ip;
 use log::{error, info, warn};
@@ -16,7 +17,7 @@ fn main() {
         .arg(
             arg!(-c --config <CONFIG>)
                 .required(true)
-                .help("The yaml config file to use"),
+                .help("The json config file to use"),
         )
         .arg(
             arg!(-l --log <LOGFILE>)
@@ -30,9 +31,9 @@ fn main() {
         )
         .get_matches();
 
-    let config: &String = matches.get_one("config").unwrap();
-    let settings = match config_manager::config(config) {
-        Ok(set) => set,
+    let config_path: &String = matches.get_one("config").unwrap();
+    let config = match Config::new(config_path) {
+        Ok(conf) => conf,
         Err(err) => {
             eprintln!("Config Error: {:?}", err);
             std::process::exit(1);
@@ -72,29 +73,26 @@ fn main() {
     }
 
     let client = Client::new();
-    if let Some(cloudflare) = settings.cloudflare {
-        for config in cloudflare.iter() {
-            match CloudflareManager::new(&client).update(config, &ip) {
-                Ok(ok) => info!("Cloudflare: {}", ok),
-                Err(err) => error!("Cloudflare: {}", err),
-            }
-        }
-    }
 
-    if let Some(namecheap) = settings.namecheap {
-        for config in namecheap.iter() {
-            match NamecheapManager::new(&client).update(config, &ip) {
-                Ok(ok) => info!("Namecheap: {}", ok),
-                Err(err) => error!("Namecheap: {}", err),
-            }
-        }
-    }
-
-    if let Some(duckdns) = settings.duckdns {
-        for config in duckdns.iter() {
-            match DuckdnsManager::new(&client).update(config, &ip) {
-                Ok(ok) => info!("Duckdns: {}", ok),
-                Err(err) => error!("Duckdns: {}", err),
+    for provider in config.providers {
+        match provider {
+            Provider::Cloudflare(conf) => {
+                match CloudflareManager::new(&client).update(&conf, &ip) {
+                    Ok(ok) => info!("Cloudflare: {}", ok),
+                    Err(err) => error!("Cloudflare: {}", err),
+                }
+            },
+            Provider::Namecheap(conf) => {
+                match NamecheapManager::new(&client).update(&conf, &ip) {
+                    Ok(ok) => info!("Namecheap: {}", ok),
+                    Err(err) => error!("Namecheap: {}", err),
+                }
+            },
+            Provider::DuckDNS(conf) => {
+                match DuckdnsManager::new(&client).update(&conf, &ip) {
+                    Ok(ok) => info!("Duckdns: {}", ok),
+                    Err(err) => error!("Duckdns: {}", err),
+                }
             }
         }
     }

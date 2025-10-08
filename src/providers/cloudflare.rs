@@ -1,4 +1,4 @@
-use crate::config_manager::CloudflareConfig;
+use crate::schema::CloudflareConfig;
 use anyhow::{anyhow, Context, Result};
 use reqwest::blocking::Client;
 use serde_json::{json, Value};

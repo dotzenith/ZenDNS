@@ -69,7 +69,7 @@ Manage Dynamic DNS with serenity
 Usage: zendns [OPTIONS] --config <CONFIG>
 
 Options:
-  -c, --config <CONFIG>  The yaml config file to use
+  -c, --config <CONFIG>  The json config file to use
   -l, --log <LOGFILE>    Where the output will be logged, uses stdout if not used
   -f, --force            Overrides the check for caching
   -h, --help             Print help
@@ -78,12 +78,12 @@ Options:
 
 #### Normal
 ```sh
-zendns --config /path/to/config.yaml
+zendns --config /path/to/config.json
 ```
 
 #### Dedicated Logfile
 ```sh
-zendns --config /path/to/config.yaml --log /path/to/logfile
+zendns --config /path/to/config.json --log /path/to/logfile
 ```
 
 ---
@@ -97,25 +97,32 @@ Create an API token for your zone in [Profile Settings](https://dash.cloudflare.
 Leave `Client IP Address Filtering` as is, and define how long this token should stay valid for in the `TTL` section.
 
 The configuration for Cloudflare looks as follows:
-```yaml
-cloudflare:
-  - key: "your-api-key"
-    zone: "your-website.com"
-    hostname: "your-hostname" # `@` if you want to update `your-website.com`
-    ttl: 1 # 1 for auto, otherwise between 60 and 86400
-    proxied: false
+```json
+{
+    "type": "cloudflare",
+    "key": "your-api-key",
+    "zone": "your-domain.com",
+    "hostname": "your-hostname",
+    "ttl": 1,
+    "proxied": false
+}
 ```
+Notes:
+- `hostname` can be set to `@` if you want to update `your-website.com` and not a subdomain
+- `ttl` is set to 1 for auto, otherwise it should be between `60` and `86400`
 
 ### ❖ Namecheap
 
 See [Namecheap's Guide](https://www.namecheap.com/support/knowledgebase/article.aspx/595/11/how-do-i-enable-dynamic-dns-for-a-domain/) on enabling DDNS
 
 The configuration for Namecheap looks as follows:
-```yaml
-namecheap:
-  - password: "your-password-key"
-    host: "your-hostname"
-    domain: "your-website.com"
+```json
+{
+    "type": "namecheap",
+    "password": "your-password-key",
+    "host": "your-hostname",
+    "domain": "your-domain.com"
+}
 ```
 
 ### ❖ DuckDNS
@@ -123,40 +130,48 @@ namecheap:
 Copy the `token` from DuckDNS profile page
 
 The configuration for DuckDNS looks as follows:
-```yaml
-duckdns:
-  - token: "your-token"
-    domain: "your-hostname.duckdns.org"
+```json
+{
+    "type": "duckdns",
+    "token": "your-token",
+    "domain": "your-hostname.duckdns.org"
+}
 ```
 
 ### ❖ All Together
 
 All of the providers can be added to the same file, with multiple entries per provider as well
 
-```yaml
-cloudflare:
-  - key: "your-api-key"
-    zone: "your-website.com"
-    hostname: "your-hostname" # `@` if you want to update `your-website.com`
-    ttl: 1 # 1 for auto, otherwise between 60 and 86400
-    proxied: false
-
-namecheap:
-  - password: "your-password-key"
-    host: "your-hostname"
-    domain: "your-website.com"
-
-duckdns:
-  - token: "your-token"
-    domain: "your-hostname.duckdns.org"
-  - token: "your-token"
-    domain: "your-other-hostname.duckdns.org"
+```json
+{
+    "providers": [
+        {
+            "type": "cloudflare",
+            "key": "your-api-key",
+            "zone": "your-domain.com",
+            "hostname": "your-hostname",
+            "ttl": 1,
+            "proxied": false
+        },
+        {
+            "type": "namecheap",
+            "password": "your-password-key",
+            "host": "your-hostname",
+            "domain": "your-domain.com"
+        },
+        {
+            "type": "duckdns",
+            "token": "your-token",
+            "domain": "your-hostname.duckdns.org"
+        }
+    ]
+}
 ```
 
 ---
 
 ## ❖ What's New?
-0.3.4 - Update dist and rust version
+1.0.0 - Switch to json for schema
 
 ---
 

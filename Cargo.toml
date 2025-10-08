@@ -1,6 +1,6 @@
 [package]
 name = "zendns"
-version = "0.3.4"
+version = "1.0.0"
 edition = "2024"
 description = "Manage Dynamic DNS with serenity"
 homepage = "https://github.com/dotzenith/ZenDNS"
@@ -13,7 +13,6 @@ regex = "1.10.6"
 reqwest = { version = "0.12.7", default-features = false, features = ["blocking", "json", "rustls-tls"] }
 serde = { version = "1.0.209", features = ["derive"] }
 serde_json = "1.0.127"
-config = { version = "0.14", default-features = false, features = ["yaml"] }
 simplelog = "0.12.2"
 log = "0.4.22"
 clap = { version = "4.5.16", features = ["cargo"] }
