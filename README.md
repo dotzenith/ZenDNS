@@ -101,8 +101,8 @@ The configuration for Cloudflare looks as follows:
 {
     "type": "cloudflare",
     "key": "your-api-key",
-    "zone": "your-domain.com",
-    "hostname": "your-hostname",
+    "zone": "domain.com",
+    "hostname": "hostname.domain.com",
     "ttl": 1,
     "proxied": false
 }
@@ -148,8 +148,8 @@ All of the providers can be added to the same file, with multiple entries per pr
         {
             "type": "cloudflare",
             "key": "your-api-key",
-            "zone": "your-domain.com",
-            "hostname": "your-hostname",
+            "zone": "domain.com",
+            "hostname": "hostname.domain.com",
             "ttl": 1,
             "proxied": false
         },
