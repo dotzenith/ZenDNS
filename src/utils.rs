@@ -45,7 +45,6 @@ pub fn init_logger(file: Option<&String>) {
 pub fn save_ip(ip: &str) -> Result<()> {
     let app_dir = ProjectDirs::from("com", "dotzenith", "ZenDNS")
         .ok_or(anyhow!("Unable to get App Directory"))?;
-    println!("{:?}", app_dir.cache_dir());
     if !app_dir.cache_dir().exists() {
         create_dir_all(&app_dir.cache_dir()).context("Unable to create cache directory")?;
     }
@@ -66,7 +65,6 @@ pub fn save_ip(ip: &str) -> Result<()> {
 pub fn read_ip() -> Result<String> {
     let app_dir = ProjectDirs::from("com", "dotzenith", "ZenDNS")
         .ok_or(anyhow!("Unable to get App Directory"))?;
-    println!("{:?}", app_dir.cache_dir());
     let mut file = BufReader::new(
         OpenOptions::new()
             .read(true)
