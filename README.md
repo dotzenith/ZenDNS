@@ -171,7 +171,7 @@ All of the providers can be added to the same file, with multiple entries per pr
 ---
 
 ## ❖ What's New?
-1.0.0 - Switch to json for schema
+1.0.1 - Fix cache directory creation
 
 ---
 
