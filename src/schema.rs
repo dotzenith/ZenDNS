@@ -1,7 +1,7 @@
-use nutype::nutype;
-use std::fs;
 use anyhow::{Context, Result};
+use nutype::nutype;
 use serde::{Deserialize, Serialize};
+use std::fs;
 
 #[nutype(validate(predicate = validate_ttl), derive(Debug, Deserialize, Serialize))]
 pub struct TTL(u32);

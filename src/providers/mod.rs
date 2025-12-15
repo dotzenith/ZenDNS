@@ -1,6 +1,6 @@
 mod cloudflare;
-mod namecheap;
 mod duckdns;
+mod namecheap;
 pub use cloudflare::CloudflareManager;
-pub use namecheap::NamecheapManager;
 pub use duckdns::DuckdnsManager;
+pub use namecheap::NamecheapManager;

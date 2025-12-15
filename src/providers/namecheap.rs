@@ -1,5 +1,5 @@
 use crate::schema::NamecheapConfig;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use regex::Regex;
 use reqwest::blocking::Client;
 
@@ -31,7 +31,10 @@ impl<'a> NamecheapManager<'a> {
             .context("Did not find any IP Addresses in response")?;
 
         if &captures[1] == ip {
-            Ok(format!("Success! Host: {} for Domain: {} has been set to {}", &config.host, &config.domain, ip))
+            Ok(format!(
+                "Success! Host: {} for Domain: {} has been set to {}",
+                &config.host, &config.domain, ip
+            ))
         } else {
             Err(anyhow!("IP Address returned by the XML does not match"))
         }

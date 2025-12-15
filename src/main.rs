@@ -1,14 +1,14 @@
 mod ip;
 mod providers;
-mod utils;
 mod schema;
+mod utils;
 
 use crate::providers::{CloudflareManager, DuckdnsManager, NamecheapManager};
-use schema::{Config, Provider};
-use clap::{arg, command, ArgAction};
+use clap::{ArgAction, arg, command};
 use ip::get_ip;
 use log::{error, info, warn};
 use reqwest::blocking::Client;
+use schema::{Config, Provider};
 use utils::{init_logger, read_ip, save_ip};
 
 fn main() {
@@ -81,19 +81,15 @@ fn main() {
                     Ok(ok) => info!("Cloudflare: {}", ok),
                     Err(err) => error!("Cloudflare: {}", err),
                 }
-            },
-            Provider::Namecheap(conf) => {
-                match NamecheapManager::new(&client).update(&conf, &ip) {
-                    Ok(ok) => info!("Namecheap: {}", ok),
-                    Err(err) => error!("Namecheap: {}", err),
-                }
-            },
-            Provider::DuckDNS(conf) => {
-                match DuckdnsManager::new(&client).update(&conf, &ip) {
-                    Ok(ok) => info!("Duckdns: {}", ok),
-                    Err(err) => error!("Duckdns: {}", err),
-                }
             }
+            Provider::Namecheap(conf) => match NamecheapManager::new(&client).update(&conf, &ip) {
+                Ok(ok) => info!("Namecheap: {}", ok),
+                Err(err) => error!("Namecheap: {}", err),
+            },
+            Provider::DuckDNS(conf) => match DuckdnsManager::new(&client).update(&conf, &ip) {
+                Ok(ok) => info!("Duckdns: {}", ok),
+                Err(err) => error!("Duckdns: {}", err),
+            },
         }
     }
 }

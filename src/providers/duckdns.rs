@@ -1,5 +1,5 @@
 use crate::schema::DuckDNSConfig;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use reqwest::blocking::Client;
 
 #[derive(Debug)]
@@ -26,7 +26,10 @@ impl<'a> DuckdnsManager<'a> {
             .context("Could not convert response to text")?;
 
         if text == "OK" {
-            Ok(format!("Success! {} has been set to {}", &config.domain, ip))
+            Ok(format!(
+                "Success! {} has been set to {}",
+                &config.domain, ip
+            ))
         } else {
             Err(anyhow!("Update Failed"))
         }

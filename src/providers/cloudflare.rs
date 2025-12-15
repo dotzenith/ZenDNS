@@ -1,7 +1,7 @@
 use crate::schema::CloudflareConfig;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use reqwest::blocking::Client;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 #[derive(Debug)]
 pub struct CloudflareManager<'a> {
@@ -110,7 +110,7 @@ impl<'a> CloudflareManager<'a> {
             return Ok(format!(
                 "Success! Hostname: {} for Zone: {} has been set to {}",
                 &config.hostname, &config.zone, ip
-            ))
+            ));
         }
         Err(anyhow!("Update failed: {}", json.to_string()))
     }
