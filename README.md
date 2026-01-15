@@ -1,23 +1,5 @@
 <h1 align="center"> ━━━━  ❖  ━━━━ </h1>
 
-<!-- BADGES -->
-<div align="center">
-   <p></p>
-
-   <img src="https://img.shields.io/github/stars/dotzenith/zendns?color=F8BD96&labelColor=302D41&style=for-the-badge">
-
-   <img src="https://img.shields.io/github/forks/dotzenith/zendns?color=DDB6F2&labelColor=302D41&style=for-the-badge">
-
-   <img src="https://img.shields.io/github/repo-size/dotzenith/zendns?color=ABE9B3&labelColor=302D41&style=for-the-badge">
-
-   <img src="https://img.shields.io/github/commit-activity/y/dotzenith/zendns?color=96CDFB&labelColor=302D41&style=for-the-badge&label=COMMITS"/>
-   <br>
-</div>
-
-<p/>
-
----
-
 ## ❖ ZenDNS
 
 ZenDNS is an easy-to-use commandline utility to manage DDNS on [Cloudflare](www.cloudflare.com), [Namecheap](https://www.namecheap.com/), and [DuckDNS](https://www.duckdns.org/)
