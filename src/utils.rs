@@ -4,6 +4,7 @@ use directories::ProjectDirs;
 use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode, WriteLogger};
 use std::fs::{OpenOptions, create_dir_all};
 use std::io::{BufReader, BufWriter};
+use std::net::Ipv4Addr;
 use std::process;
 
 pub fn init_logger(file: Option<&String>) {
@@ -42,7 +43,7 @@ pub fn init_logger(file: Option<&String>) {
     }
 }
 
-pub fn save_ip(ip: &str) -> Result<()> {
+pub fn save_ip(ip: &Ipv4Addr) -> Result<()> {
     let app_dir = ProjectDirs::from("com", "dotzenith", "ZenDNS")
         .ok_or(anyhow!("Unable to get App Directory"))?;
     if !app_dir.cache_dir().exists() {
@@ -62,7 +63,7 @@ pub fn save_ip(ip: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn read_ip() -> Result<String> {
+pub fn read_ip() -> Result<Ipv4Addr> {
     let app_dir = ProjectDirs::from("com", "dotzenith", "ZenDNS")
         .ok_or(anyhow!("Unable to get App Directory"))?;
     let mut file = BufReader::new(
@@ -72,6 +73,6 @@ pub fn read_ip() -> Result<String> {
             .context("IP cache does not exist")?,
     );
 
-    let stations: String = deserialize_from(&mut file).context("Unable to read IP from file")?;
-    Ok(stations)
+    let ip: Ipv4Addr = deserialize_from(&mut file).context("Unable to read IP from file")?;
+    Ok(ip)
 }

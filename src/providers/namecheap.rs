@@ -1,3 +1,4 @@
+use super::DnsProvider;
 use crate::schema::NamecheapConfig;
 use anyhow::{Context, Result, anyhow};
 use regex::Regex;
@@ -5,19 +6,28 @@ use reqwest::blocking::Client;
 
 #[derive(Debug)]
 pub struct NamecheapManager<'a> {
+    name: &'static str,
     client: &'a Client,
+    config: NamecheapConfig,
 }
 
 impl<'a> NamecheapManager<'a> {
-    pub fn new(client: &'a Client) -> Self {
-        NamecheapManager { client }
+    pub fn new(client: &'a Client, config: NamecheapConfig) -> Self {
+        NamecheapManager {
+            name: "namecheap",
+            client,
+            config,
+        }
     }
-    pub fn update(&self, config: &NamecheapConfig, ip: &str) -> Result<String> {
+}
+
+impl<'a> DnsProvider for NamecheapManager<'a> {
+    fn update(&self, ip: &str) -> Result<String> {
         let response = self
             .client
             .get(format!(
                 "https://dynamicdns.park-your-domain.com/update?host={}&domain={}&password={}&ip={}",
-                &config.host, &config.domain, &config.password, ip
+                &self.config.host, &self.config.domain, &self.config.password, ip
             ))
             .send()
             .context("Could not get DNS records")?;
@@ -33,10 +43,14 @@ impl<'a> NamecheapManager<'a> {
         if &captures[1] == ip {
             Ok(format!(
                 "Success! Host: {} for Domain: {} has been set to {}",
-                &config.host, &config.domain, ip
+                &self.config.host, &self.config.domain, ip
             ))
         } else {
             Err(anyhow!("IP Address returned by the XML does not match"))
         }
+    }
+
+    fn name(&self) -> &str {
+        self.name
     }
 }

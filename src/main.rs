@@ -3,12 +3,11 @@ mod providers;
 mod schema;
 mod utils;
 
-use crate::providers::{CloudflareManager, DuckdnsManager, NamecheapManager};
 use clap::{ArgAction, arg, command};
 use ip::get_ip;
 use log::{error, info, warn};
 use reqwest::blocking::Client;
-use schema::{Config, Provider};
+use schema::Config;
 use utils::{init_logger, read_ip, save_ip};
 
 fn main() {
@@ -74,22 +73,11 @@ fn main() {
 
     let client = Client::new();
 
-    for provider in config.providers {
-        match provider {
-            Provider::Cloudflare(conf) => {
-                match CloudflareManager::new(&client).update(&conf, &ip) {
-                    Ok(ok) => info!("Cloudflare: {}", ok),
-                    Err(err) => error!("Cloudflare: {}", err),
-                }
-            }
-            Provider::Namecheap(conf) => match NamecheapManager::new(&client).update(&conf, &ip) {
-                Ok(ok) => info!("Namecheap: {}", ok),
-                Err(err) => error!("Namecheap: {}", err),
-            },
-            Provider::DuckDNS(conf) => match DuckdnsManager::new(&client).update(&conf, &ip) {
-                Ok(ok) => info!("Duckdns: {}", ok),
-                Err(err) => error!("Duckdns: {}", err),
-            },
+    for provider in config.providers.into_iter() {
+        let manager = provider.into_manager(&client);
+        match manager.update(ip.to_string().as_str()) {
+            Ok(ok) => info!("{}: {}", manager.name(), ok),
+            Err(err) => error!("{}: {}", manager.name(), err),
         }
     }
 }
