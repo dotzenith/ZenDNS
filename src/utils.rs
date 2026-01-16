@@ -5,42 +5,34 @@ use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMod
 use std::fs::{OpenOptions, create_dir_all};
 use std::io::{BufReader, BufWriter};
 use std::net::Ipv4Addr;
-use std::process;
 
-pub fn init_logger(file: Option<&String>) {
+pub fn init_logger(file: Option<&String>) -> Result<()> {
     let config = ConfigBuilder::new()
         .set_time_offset_to_local()
-        .unwrap()
+        .map_err(|_| anyhow!("Unable to build config for logger"))?
         .build();
+
     match file {
         Some(file_path) => {
-            let file = OpenOptions::new().create(true).append(true).open(file_path);
-
-            if file.is_err() {
-                eprintln!("Unable to create log file");
-                process::exit(1);
-            }
-            let logger = WriteLogger::init(LevelFilter::Info, config, file.unwrap());
-            if logger.is_err() {
-                eprintln!("Unable to create log file");
-                process::exit(1);
-            }
-            logger.unwrap();
+            let file = OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(file_path)
+                .context(format!("Unable to open logfile: {}", file_path))?;
+            let _logger = WriteLogger::init(LevelFilter::Info, config, file)
+                .context("Unable to initialize logger for logfile")?;
         }
         None => {
-            let logger = TermLogger::init(
+            let _logger = TermLogger::init(
                 LevelFilter::Info,
                 config,
                 TerminalMode::Stdout,
                 ColorChoice::Never,
-            );
-            if logger.is_err() {
-                eprintln!("Unable to initialize logger for the terminal");
-                process::exit(1);
-            }
-            logger.unwrap();
+            )
+            .context("Unable to initialize logger for the terminal")?;
         }
     }
+    Ok(())
 }
 
 pub fn save_ip(ip: &Ipv4Addr) -> Result<()> {

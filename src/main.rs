@@ -40,7 +40,10 @@ fn main() {
     };
 
     let log: Option<&String> = matches.get_one("log");
-    init_logger(log); // Will exit if it doesn't succeed
+    if let Err(err) = init_logger(log) {
+        eprintln!("Logger Error: {}", err);
+        std::process::exit(1);
+    }
 
     let ip = match get_ip() {
         Ok(ip) => ip,
