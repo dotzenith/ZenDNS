@@ -153,7 +153,7 @@ All of the providers can be added to the same file, with multiple entries per pr
 ---
 
 ## ❖ What's New?
-1.0.2 - Fix cache directory creation
+1.0.3 - Misc fixes under the hood
 
 ---
 

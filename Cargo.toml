@@ -1,6 +1,6 @@
 [package]
 name = "zendns"
-version = "1.0.2"
+version = "1.0.3"
 edition = "2024"
 description = "Manage Dynamic DNS with serenity"
 homepage = "https://github.com/dotzenith/ZenDNS"
