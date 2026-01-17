@@ -111,7 +111,7 @@ impl<'a> DnsProvider for CloudflareManager<'a> {
         if current_ip == ip {
             return Ok(format!(
                 "IP Address hasn't changed, no updates made to {}",
-                &self.config.hostname
+                self.config.hostname
             ));
         }
 
@@ -123,10 +123,10 @@ impl<'a> DnsProvider for CloudflareManager<'a> {
             .client
             .patch(url)
             .header("Content-Type", "application/json")
-            .header("Authorization", format!("Bearer {}", &self.config.key))
+            .header("Authorization", format!("Bearer {}", self.config.key))
             .json(&json!({
                 "content": ip,
-                "name": &self.config.hostname,
+                "name": self.config.hostname,
                 "proxied": self.config.proxied,
                 "type": "A",
                 "ttl": self.config.ttl
@@ -141,7 +141,7 @@ impl<'a> DnsProvider for CloudflareManager<'a> {
         if success {
             return Ok(format!(
                 "Success! Hostname: {} for Zone: {} has been set to {}",
-                &self.config.hostname, &self.config.zone, ip
+                self.config.hostname, self.config.zone, ip
             ));
         }
         Err(anyhow!("Update failed: {}", json.to_string()))

@@ -22,7 +22,7 @@ impl<'a> DnsProvider for NamecheapManager<'a> {
             .client
             .get(format!(
                 "https://dynamicdns.park-your-domain.com/update?host={}&domain={}&password={}&ip={}",
-                &self.config.host, &self.config.domain, &self.config.password, ip
+                self.config.host, self.config.domain, self.config.password, ip
             ))
             .send()
             .context("Could not get DNS records")?;
@@ -38,7 +38,7 @@ impl<'a> DnsProvider for NamecheapManager<'a> {
         if &captures[1] == ip {
             Ok(format!(
                 "Success! Host: {} for Domain: {} has been set to {}",
-                &self.config.host, &self.config.domain, ip
+                self.config.host, self.config.domain, ip
             ))
         } else {
             Err(anyhow!("IP Address returned by the XML does not match"))

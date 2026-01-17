@@ -21,7 +21,7 @@ impl<'a> DnsProvider for DuckdnsManager<'a> {
             .client
             .get(format!(
                 "https://www.duckdns.org/update?domains={}&token={}&ip={}",
-                &self.config.domain, &self.config.token, ip
+                self.config.domain, self.config.token, ip
             ))
             .send()
             .context("Could not get DNS records")?;
@@ -33,7 +33,7 @@ impl<'a> DnsProvider for DuckdnsManager<'a> {
         if text == "OK" {
             Ok(format!(
                 "Success! {} has been set to {}",
-                &self.config.domain, ip
+                self.config.domain, ip
             ))
         } else {
             Err(anyhow!("Update Failed"))
