@@ -78,7 +78,7 @@ fn main() {
 
     for provider in config.providers.into_iter() {
         let manager = provider.into_manager(&client);
-        match manager.update(ip.to_string().as_str()) {
+        match manager.update(&ip.to_string()) {
             Ok(ok) => info!("{}: {}", manager.name(), ok),
             Err(err) => error!("{}: {}", manager.name(), err),
         }

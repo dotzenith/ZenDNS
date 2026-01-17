@@ -6,7 +6,6 @@ use serde_json::{Value, json};
 
 #[derive(Debug)]
 pub struct CloudflareManager<'a> {
-    name: &'static str,
     client: &'a Client,
     config: CloudflareConfig,
 }
@@ -14,7 +13,6 @@ pub struct CloudflareManager<'a> {
 impl<'a> CloudflareManager<'a> {
     pub fn new(client: &'a Client, config: CloudflareConfig) -> Self {
         CloudflareManager {
-            name: "cloudflare",
             client,
             config,
         }
@@ -23,12 +21,12 @@ impl<'a> CloudflareManager<'a> {
         json["success"].as_bool().ok_or(anyhow!("No Success"))
     }
 
-    pub fn get_zone_id(&self, api_key: &str, zone_name: &str) -> Result<String> {
+    pub fn get_zone_id(&self) -> Result<String> {
         const ZONES_ENDPOINT: &str = "https://api.cloudflare.com/client/v4/zones";
         let response = self
             .client
             .get(ZONES_ENDPOINT)
-            .header("Authorization", format!("Bearer {}", api_key))
+            .header("Authorization", format!("Bearer {}", self.config.key))
             .send()
             .context("Could not get zones")?;
 
@@ -45,7 +43,7 @@ impl<'a> CloudflareManager<'a> {
                 if zone["name"]
                     .as_str()
                     .context("Missing 'name' field in Zone")?
-                    == zone_name
+                    == self.config.zone
                 {
                     return Ok(zone["id"]
                         .as_str()
@@ -68,16 +66,14 @@ impl<'a> CloudflareManager<'a> {
     pub fn get_dns_record_id_and_ip(
         &self,
         zone_id: &str,
-        hostname: &str,
-        api_key: &str,
     ) -> Result<(String, String)> {
         let response = self
             .client
             .get(format!(
                 "https://api.cloudflare.com/client/v4/zones/{}/dns_records?type=A&name={}",
-                zone_id, hostname
+                zone_id, self.config.hostname
             ))
-            .header("Authorization", format!("Bearer {}", api_key))
+            .header("Authorization", format!("Bearer {}", self.config.key))
             .send()
             .context("Could not get DNS records")?;
 
@@ -115,9 +111,9 @@ impl<'a> CloudflareManager<'a> {
 
 impl<'a> DnsProvider for CloudflareManager<'a> {
     fn update(&self, ip: &str) -> Result<String> {
-        let zone_id = self.get_zone_id(&self.config.key, &self.config.zone)?;
+        let zone_id = self.get_zone_id()?;
         let (record_id, current_ip) =
-            self.get_dns_record_id_and_ip(&zone_id, &self.config.hostname, &self.config.key)?;
+            self.get_dns_record_id_and_ip(&zone_id)?;
 
         if current_ip == ip {
             return Ok(format!(
@@ -159,6 +155,6 @@ impl<'a> DnsProvider for CloudflareManager<'a> {
     }
 
     fn name(&self) -> &str {
-        self.name
+        "cloudflare"
     }
 }

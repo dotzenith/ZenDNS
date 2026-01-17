@@ -6,7 +6,6 @@ use reqwest::blocking::Client;
 
 #[derive(Debug)]
 pub struct NamecheapManager<'a> {
-    name: &'static str,
     client: &'a Client,
     config: NamecheapConfig,
 }
@@ -14,7 +13,6 @@ pub struct NamecheapManager<'a> {
 impl<'a> NamecheapManager<'a> {
     pub fn new(client: &'a Client, config: NamecheapConfig) -> Self {
         NamecheapManager {
-            name: "namecheap",
             client,
             config,
         }
@@ -51,6 +49,6 @@ impl<'a> DnsProvider for NamecheapManager<'a> {
     }
 
     fn name(&self) -> &str {
-        self.name
+        "namecheap"
     }
 }

@@ -5,7 +5,6 @@ use reqwest::blocking::Client;
 
 #[derive(Debug)]
 pub struct DuckdnsManager<'a> {
-    name: &'static str,
     client: &'a Client,
     config: DuckDNSConfig,
 }
@@ -13,7 +12,6 @@ pub struct DuckdnsManager<'a> {
 impl<'a> DuckdnsManager<'a> {
     pub fn new(client: &'a Client, config: DuckDNSConfig) -> Self {
         DuckdnsManager {
-            name: "duckdns",
             client,
             config,
         }
@@ -46,6 +44,6 @@ impl<'a> DnsProvider for DuckdnsManager<'a> {
     }
 
     fn name(&self) -> &str {
-        self.name
+        "duckdns"
     }
 }
