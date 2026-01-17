@@ -3,36 +3,34 @@ mod providers;
 mod schema;
 mod utils;
 
-use crate::providers::{CloudflareManager, DuckdnsManager, NamecheapManager};
-use clap::{ArgAction, arg, command};
+use clap::Parser;
 use ip::get_ip;
 use log::{error, info, warn};
 use reqwest::blocking::Client;
-use schema::{Config, Provider};
+use schema::Config;
 use utils::{init_logger, read_ip, save_ip};
 
-fn main() {
-    let matches = command!()
-        .arg_required_else_help(true)
-        .arg(
-            arg!(-c --config <CONFIG>)
-                .required(true)
-                .help("The json config file to use"),
-        )
-        .arg(
-            arg!(-l --log <LOGFILE>)
-                .required(false)
-                .help("Where the output will be logged, uses stdout if not used"),
-        )
-        .arg(
-            arg!(-f --force ... "Overrides the check for caching")
-                .required(false)
-                .action(ArgAction::SetTrue),
-        )
-        .get_matches();
+/// A CLI tool for managing Dynamic DNS updates
+#[derive(Parser)]
+#[command(author, version, about)]
+struct Args {
+    /// The json config file to use
+    #[arg(short, long)]
+    config: String,
 
-    let config_path: &String = matches.get_one("config").unwrap();
-    let config = match Config::new(config_path) {
+    /// Where the output will be logged, uses stdout if not used
+    #[arg(short, long)]
+    log: Option<String>,
+
+    /// Overrides the check for caching
+    #[arg(short, long, default_value_t = false)]
+    force: bool,
+}
+
+fn main() {
+    let args = Args::parse();
+
+    let config = match Config::new(&args.config) {
         Ok(conf) => conf,
         Err(err) => {
             eprintln!("Config Error: {:?}", err);
@@ -40,8 +38,10 @@ fn main() {
         }
     };
 
-    let log: Option<&String> = matches.get_one("log");
-    init_logger(log); // Will exit if it doesn't succeed
+    if let Err(err) = init_logger(args.log.as_ref()) {
+        eprintln!("Logger Error: {}", err);
+        std::process::exit(1);
+    }
 
     let ip = match get_ip() {
         Ok(ip) => ip,
@@ -51,7 +51,7 @@ fn main() {
         }
     };
 
-    if !matches.get_flag("force") {
+    if !args.force {
         match read_ip() {
             Ok(saved_ip) => {
                 if saved_ip == ip {
@@ -74,22 +74,11 @@ fn main() {
 
     let client = Client::new();
 
-    for provider in config.providers {
-        match provider {
-            Provider::Cloudflare(conf) => {
-                match CloudflareManager::new(&client).update(&conf, &ip) {
-                    Ok(ok) => info!("Cloudflare: {}", ok),
-                    Err(err) => error!("Cloudflare: {}", err),
-                }
-            }
-            Provider::Namecheap(conf) => match NamecheapManager::new(&client).update(&conf, &ip) {
-                Ok(ok) => info!("Namecheap: {}", ok),
-                Err(err) => error!("Namecheap: {}", err),
-            },
-            Provider::DuckDNS(conf) => match DuckdnsManager::new(&client).update(&conf, &ip) {
-                Ok(ok) => info!("Duckdns: {}", ok),
-                Err(err) => error!("Duckdns: {}", err),
-            },
+    for provider in config.providers.into_iter() {
+        let manager = provider.into_manager(&client);
+        match manager.update(&ip.to_string()) {
+            Ok(ok) => info!("{}: {}", manager.name(), ok),
+            Err(err) => error!("{}: {}", manager.name(), err),
         }
     }
 }

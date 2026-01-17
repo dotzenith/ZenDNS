@@ -1,5 +1,7 @@
+use crate::providers::{CloudflareManager, DnsProvider, DuckdnsManager, NamecheapManager};
 use anyhow::{Context, Result};
 use nutype::nutype;
+use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use std::fs;
 
@@ -28,6 +30,16 @@ pub enum Provider {
     Cloudflare(CloudflareConfig),
     Namecheap(NamecheapConfig),
     DuckDNS(DuckDNSConfig),
+}
+
+impl Provider {
+    pub fn into_manager(self, client: &Client) -> Box<dyn DnsProvider + '_> {
+        match self {
+            Provider::Cloudflare(conf) => Box::new(CloudflareManager::new(client, conf)),
+            Provider::Namecheap(conf) => Box::new(NamecheapManager::new(client, conf)),
+            Provider::DuckDNS(conf) => Box::new(DuckdnsManager::new(client, conf)),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
