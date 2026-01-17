@@ -11,10 +11,7 @@ pub struct DuckdnsManager<'a> {
 
 impl<'a> DuckdnsManager<'a> {
     pub fn new(client: &'a Client, config: DuckDNSConfig) -> Self {
-        DuckdnsManager {
-            client,
-            config,
-        }
+        DuckdnsManager { client, config }
     }
 }
 

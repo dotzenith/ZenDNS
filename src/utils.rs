@@ -5,6 +5,13 @@ use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMod
 use std::fs::{OpenOptions, create_dir_all};
 use std::io::{BufReader, BufWriter};
 use std::net::Ipv4Addr;
+use std::path::PathBuf;
+
+fn cache_dir() -> Result<PathBuf> {
+    ProjectDirs::from("com", "dotzenith", "ZenDNS")
+        .map(|dirs| dirs.cache_dir().to_path_buf())
+        .ok_or_else(|| anyhow!("Unable to get App Directory"))
+}
 
 pub fn init_logger(file: Option<&String>) -> Result<()> {
     let config = ConfigBuilder::new()
@@ -36,10 +43,9 @@ pub fn init_logger(file: Option<&String>) -> Result<()> {
 }
 
 pub fn save_ip(ip: &Ipv4Addr) -> Result<()> {
-    let app_dir = ProjectDirs::from("com", "dotzenith", "ZenDNS")
-        .ok_or(anyhow!("Unable to get App Directory"))?;
-    if !app_dir.cache_dir().exists() {
-        create_dir_all(&app_dir.cache_dir()).context("Unable to create cache directory")?;
+    let cache = cache_dir()?;
+    if !cache.exists() {
+        create_dir_all(&cache).context("Unable to create cache directory")?;
     }
 
     let mut file = BufWriter::new(
@@ -47,7 +53,7 @@ pub fn save_ip(ip: &Ipv4Addr) -> Result<()> {
             .write(true)
             .create(true)
             .truncate(true)
-            .open(app_dir.cache_dir().join("ip"))
+            .open(cache.join("ip"))
             .context("Unable to create cache file")?,
     );
 
@@ -56,12 +62,11 @@ pub fn save_ip(ip: &Ipv4Addr) -> Result<()> {
 }
 
 pub fn read_ip() -> Result<Ipv4Addr> {
-    let app_dir = ProjectDirs::from("com", "dotzenith", "ZenDNS")
-        .ok_or(anyhow!("Unable to get App Directory"))?;
+    let cache = cache_dir()?;
     let mut file = BufReader::new(
         OpenOptions::new()
             .read(true)
-            .open(app_dir.cache_dir().join("ip"))
+            .open(cache.join("ip"))
             .context("IP cache does not exist")?,
     );
 

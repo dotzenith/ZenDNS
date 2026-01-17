@@ -12,10 +12,7 @@ pub struct CloudflareManager<'a> {
 
 impl<'a> CloudflareManager<'a> {
     pub fn new(client: &'a Client, config: CloudflareConfig) -> Self {
-        CloudflareManager {
-            client,
-            config,
-        }
+        CloudflareManager { client, config }
     }
     fn response_successful(&self, json: &Value) -> Result<bool> {
         json["success"].as_bool().ok_or(anyhow!("No Success"))
@@ -63,10 +60,7 @@ impl<'a> CloudflareManager<'a> {
             Err(anyhow!(errors[0]["message"].to_string()))
         }
     }
-    pub fn get_dns_record_id_and_ip(
-        &self,
-        zone_id: &str,
-    ) -> Result<(String, String)> {
+    pub fn get_dns_record_id_and_ip(&self, zone_id: &str) -> Result<(String, String)> {
         let response = self
             .client
             .get(format!(
@@ -112,8 +106,7 @@ impl<'a> CloudflareManager<'a> {
 impl<'a> DnsProvider for CloudflareManager<'a> {
     fn update(&self, ip: &str) -> Result<String> {
         let zone_id = self.get_zone_id()?;
-        let (record_id, current_ip) =
-            self.get_dns_record_id_and_ip(&zone_id)?;
+        let (record_id, current_ip) = self.get_dns_record_id_and_ip(&zone_id)?;
 
         if current_ip == ip {
             return Ok(format!(

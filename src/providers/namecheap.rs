@@ -12,10 +12,7 @@ pub struct NamecheapManager<'a> {
 
 impl<'a> NamecheapManager<'a> {
     pub fn new(client: &'a Client, config: NamecheapConfig) -> Self {
-        NamecheapManager {
-            client,
-            config,
-        }
+        NamecheapManager { client, config }
     }
 }
 
