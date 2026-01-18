@@ -77,9 +77,9 @@ The configuration looks as follows:
 ```json
 {
     "providers": [
-      { ... },
-      { ... },
-      { ... }
+      { },
+      { },
+      { }
     ]
 }
 ```
