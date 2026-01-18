@@ -190,7 +190,7 @@ All of the providers can be added to the same file, with multiple entries per pr
 ---
 
 ## ❖ What's New?
-1.0.3 - Misc fixes under the hood
+1.1.0 - Add [Porkbun](https://porkbun.com/) support
 
 ---
 
