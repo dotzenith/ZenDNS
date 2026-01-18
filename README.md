@@ -79,6 +79,7 @@ The configuration looks as follows:
     "providers": [
       { "..." },
       { "..." },
+      { "..." },
       { "..." }
     ]
 }
