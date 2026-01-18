@@ -26,11 +26,11 @@ pub fn init_logger(file: Option<&String>) -> Result<()> {
                 .append(true)
                 .open(file_path)
                 .context(format!("Unable to open logfile: {}", file_path))?;
-            let _logger = WriteLogger::init(LevelFilter::Info, config, file)
+            WriteLogger::init(LevelFilter::Info, config, file)
                 .context("Unable to initialize logger for logfile")?;
         }
         None => {
-            let _logger = TermLogger::init(
+            TermLogger::init(
                 LevelFilter::Info,
                 config,
                 TerminalMode::Stdout,

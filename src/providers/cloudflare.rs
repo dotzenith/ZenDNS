@@ -167,7 +167,7 @@ impl<'a> DnsProvider for CloudflareManager<'a> {
                 self.config.hostname, self.config.zone, ip
             ));
         }
-        Err(anyhow!("Update failed: {}", json.to_string()))
+        Err(anyhow!("Update failed: {}", json))
     }
 
     fn name(&self) -> &str {
