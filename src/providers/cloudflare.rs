@@ -1,8 +1,31 @@
 use super::DnsProvider;
-use crate::schema::CloudflareConfig;
 use anyhow::{Context, Result, anyhow};
+use nutype::nutype;
 use reqwest::blocking::Client;
+use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
+
+#[nutype(validate(predicate = validate_ttl), derive(Debug, Deserialize, Serialize))]
+pub struct TTL(u32);
+
+fn validate_ttl(value: &u32) -> bool {
+    *value == 1 || (*value >= 60 && *value <= 86400)
+}
+
+fn default_ttl() -> TTL {
+    TTL::try_new(1).unwrap()
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CloudflareConfig {
+    pub key: String,
+    pub zone: String,
+    pub hostname: String,
+    #[serde(default = "default_ttl")]
+    pub ttl: TTL,
+    #[serde(default)]
+    pub proxied: bool,
+}
 
 #[derive(Debug)]
 pub struct CloudflareManager<'a> {
@@ -144,7 +167,7 @@ impl<'a> DnsProvider for CloudflareManager<'a> {
                 self.config.hostname, self.config.zone, ip
             ));
         }
-        Err(anyhow!("Update failed: {}", json.to_string()))
+        Err(anyhow!("Update failed: {}", json))
     }
 
     fn name(&self) -> &str {

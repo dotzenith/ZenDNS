@@ -1,7 +1,13 @@
 use super::DnsProvider;
-use crate::schema::DuckDNSConfig;
 use anyhow::{Context, Result, anyhow};
 use reqwest::blocking::Client;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DuckDNSConfig {
+    pub token: String,
+    pub domain: String,
+}
 
 #[derive(Debug)]
 pub struct DuckdnsManager<'a> {

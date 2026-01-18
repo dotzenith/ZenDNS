@@ -1,8 +1,15 @@
 use super::DnsProvider;
-use crate::schema::NamecheapConfig;
 use anyhow::{Context, Result, anyhow};
 use regex::Regex;
 use reqwest::blocking::Client;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct NamecheapConfig {
+    pub password: String,
+    pub host: String,
+    pub domain: String,
+}
 
 #[derive(Debug)]
 pub struct NamecheapManager<'a> {

@@ -2,7 +2,7 @@
 
 ## ❖ ZenDNS
 
-ZenDNS is an easy-to-use commandline utility to manage DDNS on [Cloudflare](www.cloudflare.com), [Namecheap](https://www.namecheap.com/), and [DuckDNS](https://www.duckdns.org/)
+ZenDNS is an easy-to-use commandline utility to manage DDNS on [Cloudflare](www.cloudflare.com), [Namecheap](https://www.namecheap.com/), [DuckDNS](https://www.duckdns.org/), and [Porkbun](https://porkbun.com/)
 
 
 ---
@@ -72,6 +72,19 @@ zendns --config /path/to/config.json --log /path/to/logfile
 
 ## ❖ Configuration
 
+The configuration looks as follows:
+
+```json
+{
+    "providers": [
+      { "..." },
+      { "..." },
+      { "..." },
+      { "..." }
+    ]
+}
+```
+
 ### ❖ Cloudflare
 
 Create an API token for your zone in [Profile Settings](https://dash.cloudflare.com/profile/api-tokens). The token must have `Zone::DNS::Read` and `Zone::DNS::Edit` permissions.
@@ -120,6 +133,23 @@ The configuration for DuckDNS looks as follows:
 }
 ```
 
+### ❖ Porkbun
+
+- Generate [API Tokens](https://porkbun.com/account/api) and copy the `API Key` and `Secret Key`
+- Enable `API Access` on the domain you'll be updating
+
+The configuration for Porkbun looks as follows:
+```json
+{
+    "type": "porkbun",
+    "domain": "your-domain.com",
+    "subdomain": "your-subdomain",
+    "apikey": "API Key",
+    "secretapikey": "Secret Key",
+    "ttl": "600"
+}
+```
+
 ### ❖ All Together
 
 All of the providers can be added to the same file, with multiple entries per provider as well
@@ -145,6 +175,14 @@ All of the providers can be added to the same file, with multiple entries per pr
             "type": "duckdns",
             "token": "your-token",
             "domain": "your-hostname.duckdns.org"
+        },
+        {
+            "type": "porkbun",
+            "domain": "your-domain.com",
+            "subdomain": "your-subdomain",
+            "apikey": "API Key",
+            "secretapikey": "Secret Key",
+            "ttl": "600"
         }
     ]
 }
@@ -153,7 +191,7 @@ All of the providers can be added to the same file, with multiple entries per pr
 ---
 
 ## ❖ What's New?
-1.0.3 - Misc fixes under the hood
+1.1.0 - Add [Porkbun](https://porkbun.com/) support
 
 ---
 
