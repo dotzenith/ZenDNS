@@ -8,8 +8,8 @@ use serde_json::json;
 pub struct PorkbunConfig {
     pub domain: String,
     pub subdomain: String,
-    pub secretapikey: String,
     pub apikey: String,
+    pub secretapikey: String,
     pub ttl: String
 }
 
