@@ -1,16 +1,8 @@
-use crate::providers::{CloudflareManager, DnsProvider, DuckdnsManager, NamecheapManager};
+use crate::providers::*;
 use anyhow::{Context, Result};
-use nutype::nutype;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use std::fs;
-
-#[nutype(validate(predicate = validate_ttl), derive(Debug, Deserialize, Serialize))]
-pub struct TTL(u32);
-
-fn validate_ttl(value: &u32) -> bool {
-    *value == 1 || (*value >= 60 && *value <= 86400)
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -30,6 +22,7 @@ pub enum Provider {
     Cloudflare(CloudflareConfig),
     Namecheap(NamecheapConfig),
     DuckDNS(DuckDNSConfig),
+    Porkbun(PorkbunConfig),
 }
 
 impl Provider {
@@ -38,34 +31,7 @@ impl Provider {
             Provider::Cloudflare(conf) => Box::new(CloudflareManager::new(client, conf)),
             Provider::Namecheap(conf) => Box::new(NamecheapManager::new(client, conf)),
             Provider::DuckDNS(conf) => Box::new(DuckdnsManager::new(client, conf)),
+            Provider::Porkbun(conf) => Box::new(PorkbunManager::new(client, conf)),
         }
     }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct CloudflareConfig {
-    pub key: String,
-    pub zone: String,
-    pub hostname: String,
-    #[serde(default = "default_ttl")]
-    pub ttl: TTL,
-    #[serde(default)]
-    pub proxied: bool,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct NamecheapConfig {
-    pub password: String,
-    pub host: String,
-    pub domain: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct DuckDNSConfig {
-    pub token: String,
-    pub domain: String,
-}
-
-fn default_ttl() -> TTL {
-    TTL::try_new(1).unwrap()
 }
