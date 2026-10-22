@@ -1,9 +1,7 @@
 use anyhow::{Context, Result, anyhow};
-use bincode::{deserialize_from, serialize_into};
 use directories::ProjectDirs;
 use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode, WriteLogger};
-use std::fs::{OpenOptions, create_dir_all};
-use std::io::{BufReader, BufWriter};
+use std::fs::{OpenOptions, create_dir_all, read, write};
 use std::net::Ipv4Addr;
 use std::path::PathBuf;
 
@@ -48,28 +46,14 @@ pub fn save_ip(ip: &Ipv4Addr) -> Result<()> {
         create_dir_all(&cache).context("Unable to create cache directory")?;
     }
 
-    let mut file = BufWriter::new(
-        OpenOptions::new()
-            .write(true)
-            .create(true)
-            .truncate(true)
-            .open(cache.join("ip"))
-            .context("Unable to create cache file")?,
-    );
-
-    serialize_into(&mut file, ip).context("Unable to save IP to file")?;
+    let bytes = wincode::serialize(ip).context("Unable to serialize IP")?;
+    write(cache.join("ip"), bytes).context("Unable to save IP to file")?;
     Ok(())
 }
 
 pub fn read_ip() -> Result<Ipv4Addr> {
     let cache = cache_dir()?;
-    let mut file = BufReader::new(
-        OpenOptions::new()
-            .read(true)
-            .open(cache.join("ip"))
-            .context("IP cache does not exist")?,
-    );
-
-    let ip: Ipv4Addr = deserialize_from(&mut file).context("Unable to read IP from file")?;
+    let bytes = read(cache.join("ip")).context("IP cache does not exist")?;
+    let ip: Ipv4Addr = wincode::deserialize(&bytes).context("Unable to read IP from file")?;
     Ok(ip)
 }

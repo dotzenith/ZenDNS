@@ -191,7 +191,7 @@ All of the providers can be added to the same file, with multiple entries per pr
 ---
 
 ## ❖ What's New?
-1.1.1 - Add [Porkbun](https://porkbun.com/) support
+1.1.2 - Update dependencies
 
 ---
 
